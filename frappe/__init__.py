@@ -47,7 +47,7 @@ from .utils.jinja import (
 )
 from .utils.lazy_loader import lazy_import
 
-__version__ = "14.75.0"
+__version__ = "14.76.0"
 __title__ = "Frappe Framework"
 
 controllers = {}
@@ -2427,8 +2427,8 @@ def _register_fault_handler():
 	import sys
 
 	# Some libraries monkey patch stderr, we need actual fd
-	if isinstance(sys.stderr, io.TextIOWrapper):
-		faulthandler.register(signal.SIGUSR1, file=sys.stderr)
+	if isinstance(sys.__stderr__, io.TextIOWrapper):
+		faulthandler.register(signal.SIGUSR1, file=sys.__stderr__)
 
 
 if _tune_gc:

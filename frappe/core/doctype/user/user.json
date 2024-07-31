@@ -652,12 +652,12 @@
    "label": "Auto follow documents that you Like"
   },
   {
-    "default": "0",
-    "depends_on": "eval:(doc.document_follow_notify== 1)",
-    "fieldname": "follow_shared_documents",
-    "fieldtype": "Check",
-    "label": "Auto follow documents that are shared with you"
-   },
+   "default": "0",
+   "depends_on": "eval:(doc.document_follow_notify== 1)",
+   "fieldname": "follow_shared_documents",
+   "fieldtype": "Check",
+   "label": "Auto follow documents that are shared with you"
+  },
   {
    "default": "0",
    "depends_on": "eval:(doc.document_follow_notify== 1)",
@@ -733,7 +733,7 @@
    "link_fieldname": "user"
   }
  ],
- "modified": "2024-02-11 13:16:29.574666",
+ "modified": "2024-07-31 16:45:48.680068",
  "modified_by": "Administrator",
  "module": "Core",
  "name": "User",
@@ -766,7 +766,7 @@
  ],
  "quick_entry": 1,
  "route": "user",
- "search_fields": "full_name",
+ "search_fields": "full_name, email, username",
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",

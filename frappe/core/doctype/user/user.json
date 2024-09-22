@@ -243,7 +243,8 @@
    "label": "Gender",
    "oldfieldname": "gender",
    "oldfieldtype": "Select",
-   "options": "Gender"
+   "options": "Gender",
+   "permlevel": 1
   },
   {
    "fieldname": "phone",
@@ -264,7 +265,8 @@
    "label": "Birth Date",
    "no_copy": 1,
    "oldfieldname": "birth_date",
-   "oldfieldtype": "Date"
+   "oldfieldtype": "Date",
+   "permlevel": 1
   },
   {
    "fieldname": "location",
@@ -652,12 +654,12 @@
    "label": "Auto follow documents that you Like"
   },
   {
-    "default": "0",
-    "depends_on": "eval:(doc.document_follow_notify== 1)",
-    "fieldname": "follow_shared_documents",
-    "fieldtype": "Check",
-    "label": "Auto follow documents that are shared with you"
-   },
+   "default": "0",
+   "depends_on": "eval:(doc.document_follow_notify== 1)",
+   "fieldname": "follow_shared_documents",
+   "fieldtype": "Check",
+   "label": "Auto follow documents that are shared with you"
+  },
   {
    "default": "0",
    "depends_on": "eval:(doc.document_follow_notify== 1)",
@@ -733,7 +735,7 @@
    "link_fieldname": "user"
   }
  ],
- "modified": "2024-02-11 13:16:29.574666",
+ "modified": "2024-09-22 15:56:12.640214",
  "modified_by": "Administrator",
  "module": "Core",
  "name": "User",

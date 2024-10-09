@@ -97,7 +97,11 @@ def prepare_options(html, options):
 			"print-media-type": None,
 			"background": None,
 			"images": None,
+<<<<<<< HEAD
 			# "quiet": None,
+=======
+			"quiet": None,
+>>>>>>> 43099de3f1c9e41d12e3f7ed4a591075a5924492
 			# 'no-outline': None,
 			"encoding": "UTF-8",
 			# 'load-error-handling': 'ignore'

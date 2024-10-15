@@ -202,7 +202,7 @@ def json_handler(obj):
         return repr(obj)
 
     elif isinstance(obj, MicrosoftTeamsController):
-        return str(MicrosoftTeamsController)
+        return obj.as_dict()
 
     else:
         raise TypeError(

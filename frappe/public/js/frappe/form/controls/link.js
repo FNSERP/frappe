@@ -298,7 +298,7 @@ frappe.ui.form.ControlLink = class ControlLink extends frappe.ui.form.ControlDat
 								r.results.push({
 									html: `<span class="text-muted" style="line-height: 1.5">${filter_string}</span>`,
 									value: "",
-									action: () => {},
+									action: () => { },
 								});
 							}
 						}
@@ -440,7 +440,9 @@ frappe.ui.form.ControlLink = class ControlLink extends frappe.ui.form.ControlDat
 			if (newArr.length === 0) return [currElem];
 			let element_with_same_value = newArr.find((e) => e.value === currElem.value);
 			if (element_with_same_value) {
-				element_with_same_value.description += `, ${currElem.description}`;
+				if (currElem.description) {
+					element_with_same_value.description += `, ${currElem.description}`;
+				}
 				return [...newArr];
 			}
 			return [...newArr, currElem];

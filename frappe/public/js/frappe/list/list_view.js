@@ -472,16 +472,16 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 		let has_filters_set = filters && filters.length;
 		let no_result_message = has_filters_set
 			? __("No {0} found with matching filters. Clear filters to see all {0}.", [
-					__(this.doctype),
-			  ])
+				__(this.doctype),
+			])
 			: __("You haven't created a {0} yet", [__(this.doctype)]);
 		let new_button_label = has_filters_set
 			? __("Create a new {0}", [__(this.doctype)], "Create a new document from list view")
 			: __(
-					"Create your first {0}",
-					[__(this.doctype)],
-					"Create a new document from list view"
-			  );
+				"Create your first {0}",
+				[__(this.doctype)],
+				"Create a new document from list view"
+			);
 		let empty_state_image =
 			this.settings.empty_state_image ||
 			"/assets/frappe/images/ui-states/list-empty-state.svg";
@@ -676,10 +676,9 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 
 				return `
 				<div class="${classes}">
-					${
-						col.type === "Subject"
-							? subject_html
-							: `
+					${col.type === "Subject"
+						? subject_html
+						: `
 						<span>${__((col.df && col.df.label) || col.type)}</span>`
 					}
 				</div>
@@ -1594,7 +1593,7 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 		return frappe.model.user_settings.save(this.doctype, this.view_name, obj);
 	}
 
-	on_update() {}
+	on_update() { }
 
 	update_url_with_filters() {
 		if (frappe.get_route_str() == this.page_name && !this.report_name) {
@@ -1772,8 +1771,11 @@ frappe.views.ListView = class ListView extends frappe.views.BaseList {
 			})
 			.then((actions) => {
 				Object.keys(this.workflow_action_items).forEach((key) => {
-					this.workflow_action_items[key].removeClass("disabled");
-					this.workflow_action_items[key].toggle(actions.includes(key));
+					const $link = this.workflow_action_items[key];
+					const $item = $link?.closest("li");
+					$link?.removeClass("disabled");
+					$link?.toggle(actions.includes(key));
+					$item?.toggle(actions.includes(key));
 				});
 			});
 	}

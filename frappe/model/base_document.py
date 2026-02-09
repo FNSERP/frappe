@@ -1120,8 +1120,13 @@ class BaseDocument:
 			doctype = self.meta.get_field(parentfield).options if parentfield else self.doctype
 			df = frappe.get_meta(doctype).get_field(fieldname)
 
-			if df.fieldtype in ("Currency", "Float", "Percent"):
+			if df.fieldtype in ("Float", "Percent"):
 				self._precision[cache_key][fieldname] = get_field_precision(df, self)
+			elif df.fieldtype == "Currency":
+				# Get actual currency value from the document
+				from frappe.model.meta import get_field_currency
+				currency = get_field_currency(df, self)
+				self._precision[cache_key][fieldname] = get_field_precision(df, self, currency)
 
 		return self._precision[cache_key][fieldname]
 

@@ -783,8 +783,12 @@ def get_field_currency(df, doc=None):
 
 		if ":" in cstr(df.get("options")):
 			split_opts = df.get("options").split(":")
-			if len(split_opts) == 3 and doc.get(split_opts[1]):
-				currency = frappe.get_cached_value(split_opts[0], doc.get(split_opts[1]), split_opts[2])
+			if len(split_opts) == 3:
+				field_value = doc.get(split_opts[1])
+				if not field_value and doc.get("parenttype") and doc.get("parent"):
+					field_value = frappe.db.get_value(doc.parenttype, doc.parent, split_opts[1])
+				if field_value:
+					currency = frappe.get_cached_value(split_opts[0], field_value, split_opts[2])
 		else:
 			currency = doc.get(df.get("options"))
 			if doc.get("parenttype"):

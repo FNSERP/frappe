@@ -200,15 +200,17 @@ def json_handler(obj):
 
     elif callable(obj):
         return repr(obj)
-    
+
     elif isinstance(obj, MicrosoftTeamsController):
         return obj.as_dict()
 
-	elif isinstance(obj, Path):
-		return str(obj)
+    elif isinstance(obj, Path):
+        return str(obj)
 
-	else:
-		raise TypeError(f"""Object of type {type(obj)} with value of {obj!r} is not JSON serializable""")
+    else:
+        raise TypeError(
+            f"""Object of type {type(obj)} with value of {obj!r} is not JSON serializable"""
+        )
 
 
 def as_page():

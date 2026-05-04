@@ -231,3 +231,124 @@ class TestDocShare(FrappeTestCase):
 			frappe.share.add("Communication", doc.name, "test1@example.com")
 		finally:
 			doc.delete()
+
+	def test_cannot_share_submit_without_submit_permission(self):
+		"""Regression test: a user with share-but-not-submit cannot grant submit via sharing.
+
+		Bug scenario:
+		  - User A has share permission but NOT submit permission on the document
+		  - User A should NOT be able to share the document with submit=1 to User B
+		  - Without the fix, User B would gain submit access even though neither
+		    User A nor User B originally had submit permission.
+		"""
+		doctype = "Test DocShare Submit Escalation"
+		create_submittable_doctype(doctype, submit_perms=0)
+
+		frappe.set_user("Administrator")
+		submittable_doc = frappe.get_doc(dict(doctype=doctype, test="submit escalation test")).insert()
+
+		# Give User A read + share (but explicitly NO submit)
+		frappe.share.add_docshare(
+			doctype,
+			submittable_doc.name,
+			self.user,
+			read=1,
+			write=1,
+			share=1,
+			submit=0,
+			flags={"ignore_share_permission": True},
+		)
+
+		frappe.set_user(self.user)
+
+		# User A has share permission but not submit
+		self.assertTrue(frappe.has_permission(doctype, "share", doc=submittable_doc.name))
+		self.assertFalse(frappe.has_permission(doctype, "submit", doc=submittable_doc.name))
+
+		# User A must NOT be able to grant submit to another user via the API
+		self.assertRaises(
+			frappe.PermissionError,
+			frappe.share.add,
+			doctype,
+			submittable_doc.name,
+			"test1@example.com",
+			submit=1,
+		)
+
+		# User A must NOT be able to grant submit via set_permission either
+		frappe.set_user("Administrator")
+		frappe.share.add_docshare(
+			doctype,
+			submittable_doc.name,
+			"test1@example.com",
+			read=1,
+			flags={"ignore_share_permission": True},
+		)
+		frappe.set_user(self.user)
+
+		self.assertRaises(
+			frappe.PermissionError,
+			frappe.share.set_permission,
+			doctype,
+			submittable_doc.name,
+			"test1@example.com",
+			"submit",
+			1,
+		)
+
+		# Verify test1@example.com still does NOT have submit after the blocked attempts
+		frappe.set_user("Administrator")
+		self.assertFalse(
+			frappe.has_permission(doctype, "submit", doc=submittable_doc.name, user="test1@example.com")
+		)
+
+		frappe.share.remove(doctype, submittable_doc.name, self.user)
+		frappe.share.remove(doctype, submittable_doc.name, "test1@example.com")
+
+	def test_cannot_bypass_submit_check_via_direct_docshare(self):
+		"""Regression test: DocShare.validate() itself must block submit escalation.
+
+		Even if internal/hook code saves a DocShare directly (bypassing the
+		function-level guards in frappe.share), the DocType-level validate()
+		must reject submit=1 when the current user lacks submit permission.
+		"""
+		doctype = "Test DocShare Submit Bypass"
+		create_submittable_doctype(doctype, submit_perms=0)
+
+		frappe.set_user("Administrator")
+		submittable_doc = frappe.get_doc(dict(doctype=doctype, test="submit bypass test")).insert()
+
+		# Give User A share permission without submit
+		frappe.share.add_docshare(
+			doctype,
+			submittable_doc.name,
+			self.user,
+			read=1,
+			write=1,
+			share=1,
+			submit=0,
+			flags={"ignore_share_permission": True},
+		)
+
+		frappe.set_user(self.user)
+		self.assertFalse(frappe.has_permission(doctype, "submit", doc=submittable_doc.name))
+
+		# Simulate a direct DocShare record creation (e.g. via hook code)
+		# without going through frappe.share.add — should still be blocked
+		new_share = frappe.new_doc("DocShare")
+		new_share.update(
+			{
+				"user": "test1@example.com",
+				"share_doctype": doctype,
+				"share_name": submittable_doc.name,
+				"read": 1,
+				"write": 1,
+				"submit": 1,
+				"share": 0,
+				"everyone": 0,
+			}
+		)
+		self.assertRaises(frappe.PermissionError, new_share.save, ignore_permissions=True)
+
+		frappe.set_user("Administrator")
+		frappe.share.remove(doctype, submittable_doc.name, self.user)

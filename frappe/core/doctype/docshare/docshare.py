@@ -15,6 +15,7 @@ class DocShare(Document):
 	def validate(self):
 		self.validate_user()
 		self.check_share_permission()
+		self.check_permission_escalation()
 		self.check_is_submittable()
 		self.cascade_permissions_downwards()
 		self.get_doc().run_method("validate_share", self)
@@ -41,6 +42,29 @@ class DocShare(Document):
 			self.share_doctype, "share", self.get_doc()
 		):
 			frappe.throw(_('You need to have "Share" permission'), frappe.PermissionError)
+
+	def check_permission_escalation(self):
+		"""Prevent granting permissions the current user does not have.
+
+		A user must possess a permission themselves before they can grant it to
+		others via sharing.  This is checked here (DocType-level) in addition to
+		the function-level guard in ``frappe.share.check_share_permission`` so
+		that every code path that creates or modifies a DocShare record is
+		protected — including direct DocShare manipulations by hooks or custom
+		code.
+		"""
+		if self.flags.ignore_share_permission:
+			return
+
+		doc = self.get_doc()
+		for ptype in ("read", "write", "submit"):
+			if cint(self.get(ptype)) and not frappe.has_permission(doc.doctype, ptype, doc=doc):
+				frappe.throw(
+					_(
+						"You cannot grant {0} permission on {1} {2} because you do not have {0} permission on it"
+					).format(frappe.bold(_(ptype)), _(doc.doctype), frappe.bold(doc.name)),
+					frappe.PermissionError,
+				)
 
 	def check_is_submittable(self):
 		if self.submit and not cint(frappe.db.get_value("DocType", self.share_doctype, "is_submittable")):

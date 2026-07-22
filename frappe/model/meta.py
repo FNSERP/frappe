@@ -783,12 +783,8 @@ def get_field_currency(df, doc=None):
 
 		if ":" in cstr(df.get("options")):
 			split_opts = df.get("options").split(":")
-			if len(split_opts) == 3:
-				field_value = doc.get(split_opts[1])
-				if not field_value and doc.get("parenttype") and doc.get("parent"):
-					field_value = frappe.db.get_value(doc.parenttype, doc.parent, split_opts[1])
-				if field_value:
-					currency = frappe.get_cached_value(split_opts[0], field_value, split_opts[2])
+			if len(split_opts) == 3 and doc.get(split_opts[1]):
+				currency = frappe.get_cached_value(split_opts[0], doc.get(split_opts[1]), split_opts[2])
 		else:
 			currency = doc.get(df.get("options"))
 			if doc.get("parenttype"):
@@ -817,16 +813,6 @@ def get_field_precision(df, doc=None, currency=None):
 		precision = cint(df.precision)
 
 	elif df.fieldtype == "Currency":
-		# Currency가 제공되면 해당 통화의 fraction_units 사용
-		if currency:
-			fraction_units = frappe.db.get_value("Currency", currency, "fraction_units", cache=True)
-			if fraction_units and cint(fraction_units) > 0:
-				# fraction_units로부터 precision 계산
-				# 1 → 0, 10 → 1, 100 → 2, 1000 → 3
-				precision = len(str(cint(fraction_units))) - 1
-				return precision
-
-		# currency가 없거나 fraction_units를 가져올 수 없는 경우 시스템 기본값 사용
 		precision = cint(frappe.db.get_default("currency_precision"))
 		if not precision:
 			number_format = frappe.db.get_default("number_format") or "#,###.##"

@@ -728,14 +728,14 @@ Object.assign(frappe.utils, {
 		var objPattern = new RegExp(
 			// Delimiters.
 			"(\\" +
-				strDelimiter +
-				"|\\r?\\n|\\r|^)" +
-				// Quoted fields.
-				'(?:"([^"]*(?:""[^"]*)*)"|' +
-				// Standard fields.
-				'([^"\\' +
-				strDelimiter +
-				"\\r\\n]*))",
+			strDelimiter +
+			"|\\r?\\n|\\r|^)" +
+			// Quoted fields.
+			'(?:"([^"]*(?:""[^"]*)*)"|' +
+			// Standard fields.
+			'([^"\\' +
+			strDelimiter +
+			"\\r\\n]*))",
 			"gi"
 		);
 
@@ -1392,9 +1392,8 @@ Object.assign(frappe.utils, {
 	build_summary_item(summary) {
 		if (summary.type == "separator") {
 			return $(`<div class="summary-separator">
-				<div class="summary-value ${summary.color ? summary.color.toLowerCase() : "text-muted"}">${
-				summary.value
-			}</div>
+				<div class="summary-value ${summary.color ? summary.color.toLowerCase() : "text-muted"}">${summary.value
+				}</div>
 			</div>`);
 		}
 		let df = { fieldtype: summary.datatype };
@@ -1408,8 +1407,8 @@ Object.assign(frappe.utils, {
 		let color = summary.indicator
 			? summary.indicator.toLowerCase()
 			: summary.color
-			? summary.color.toLowerCase()
-			: "";
+				? summary.color.toLowerCase()
+				: "";
 
 		return $(`<div class="summary-item">
 			<span class="summary-label">${__(summary.label)}</span>
@@ -1421,17 +1420,17 @@ Object.assign(frappe.utils, {
 		let w = window.open(
 			frappe.urllib.get_full_url(
 				"/printview?doctype=" +
-					encodeURIComponent(doctype) +
-					"&name=" +
-					encodeURIComponent(docname) +
-					"&trigger_print=1" +
-					"&format=" +
-					encodeURIComponent(print_format) +
-					"&no_letterhead=" +
-					(letterhead ? "0" : "1") +
-					"&letterhead=" +
-					encodeURIComponent(letterhead) +
-					(lang_code ? "&_lang=" + lang_code : "")
+				encodeURIComponent(doctype) +
+				"&name=" +
+				encodeURIComponent(docname) +
+				"&trigger_print=1" +
+				"&format=" +
+				encodeURIComponent(print_format) +
+				"&no_letterhead=" +
+				(letterhead ? "0" : "1") +
+				"&letterhead=" +
+				encodeURIComponent(letterhead) +
+				(lang_code ? "&_lang=" + lang_code : "")
 			)
 		);
 
@@ -1635,15 +1634,7 @@ Object.assign(frappe.utils, {
 	},
 
 	process_filter_expression(filter) {
-		let filters = [];
-		if (filter) {
-			try {
-				filters = JSON.parse(filter);
-			} catch {
-				console.warn("Invalid JSON in filter expression", filter);
-			}
-		}
-		return filters;
+		return new Function(`return ${filter}`)();
 	},
 
 	get_filter_from_json(filter_json, doctype) {
